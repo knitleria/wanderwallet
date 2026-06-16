@@ -66,6 +66,6 @@ func (ctrl *TravelController) CreateTravel(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"message": fmt.Sprintf("Travel %s created", travel.Title),
+		"message": fmt.Sprintf("Travel %s with %d created", travel.Title, travel.ID),
 	})
 }

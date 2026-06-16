@@ -39,7 +39,7 @@ cmd/wanderwallet/.env
 *.sqlite
 *.sqlite3
 tmp/
-
+presentation.md
 # Прочее
 **/.DS_Store
 Thumbs.db
