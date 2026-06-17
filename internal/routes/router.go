@@ -27,12 +27,12 @@ func SetupRouter(
 		protected := api.Group("")
 		protected.Use(middleware.AuthMiddleware)
 		{
-			travelRoutes := api.Group("/travel")
+			travelRoutes := protected.Group("/travel")
 			{
 				travelRoutes.POST("", travelController.CreateTravel)
 			}
 
-			expenseRoutes := api.Group("/expenses")
+			expenseRoutes := protected.Group("/expenses")
 			{
 				expenseRoutes.GET("", expenseController.GetExpensesByUserID)
 				expenseRoutes.POST("", expenseController.CreateExpense)
@@ -40,14 +40,14 @@ func SetupRouter(
 				expenseRoutes.DELETE("/:id", expenseController.DeleteExpenseByID)
 			}
 
-			categoryRoutes := api.Group("/categories")
+			categoryRoutes := protected.Group("/categories")
 			{
 				categoryRoutes.GET("", categoryController.GetCategoriesByUserID)
 				categoryRoutes.POST("", categoryController.CreateCategory)
 				categoryRoutes.DELETE("/:id", categoryController.DeleteCategoryByID)
 			}
 
-			analyticsRoutes := api.Group("/analytics")
+			analyticsRoutes := protected.Group("/analytics")
 			{
 				analyticsRoutes.GET("", analyticsController.GetAnalytics)
 			}
