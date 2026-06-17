@@ -30,6 +30,7 @@ docs/swagger.json
 docs/swagger.yaml
 
 # Персональные и приватные настройки
+.env
 cmd/wanderwallet/.env
 .env.local
 .env.*
@@ -43,3 +44,6 @@ presentation.md
 # Прочее
 **/.DS_Store
 Thumbs.db
+a_variant.md
+aws_variant.md
+clouds.md

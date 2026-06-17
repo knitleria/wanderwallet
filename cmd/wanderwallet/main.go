@@ -42,6 +42,13 @@ func main() {
 
 	r := gin.Default()
 
+	r.GET("/healthz", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"status":  "ok",
+			"service": "wanderwallet",
+		})
+	})
+
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.Use(middleware.AuthMiddleware)

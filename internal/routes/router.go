@@ -2,6 +2,7 @@ package routes
 
 import (
 	"wanderwallet/internal/controllers"
+	"wanderwallet/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,35 +18,40 @@ func SetupRouter(
 
 	api := r.Group("/api")
 	{
-		userRoutes := api.Group("/auth")
+		authRoutes := api.Group("/auth")
 		{
-			userRoutes.POST("/register", userController.Register)
-			userRoutes.POST("/login", userController.Login)
+			authRoutes.POST("/register", userController.Register)
+			authRoutes.POST("/login", userController.Login)
 		}
 
-		travelRoutes := api.Group("/travel")
+		protected := api.Group("")
+		protected.Use(middleware.AuthMiddleware)
 		{
-			travelRoutes.POST("", travelController.CreateTravel)
+			travelRoutes := api.Group("/travel")
+			{
+				travelRoutes.POST("", travelController.CreateTravel)
+			}
+
+			expenseRoutes := api.Group("/expenses")
+			{
+				expenseRoutes.GET("", expenseController.GetExpensesByUserID)
+				expenseRoutes.POST("", expenseController.CreateExpense)
+				expenseRoutes.PUT("/:id", expenseController.UpdateExpenseByUserID)
+				expenseRoutes.DELETE("/:id", expenseController.DeleteExpenseByID)
+			}
+
+			categoryRoutes := api.Group("/categories")
+			{
+				categoryRoutes.GET("", categoryController.GetCategoriesByUserID)
+				categoryRoutes.POST("", categoryController.CreateCategory)
+				categoryRoutes.DELETE("/:id", categoryController.DeleteCategoryByID)
+			}
+
+			analyticsRoutes := api.Group("/analytics")
+			{
+				analyticsRoutes.GET("", analyticsController.GetAnalytics)
+			}
 		}
 
-		expenseRoutes := api.Group("/expenses")
-		{
-			expenseRoutes.GET("", expenseController.GetExpensesByUserID)
-			expenseRoutes.POST("", expenseController.CreateExpense)
-			expenseRoutes.PUT("/:id", expenseController.UpdateExpenseByUserID)
-			expenseRoutes.DELETE("/:id", expenseController.DeleteExpenseByID)
-		}
-
-		categoryRoutes := api.Group("/categories")
-		{
-			categoryRoutes.GET("", categoryController.GetCategoriesByUserID)
-			categoryRoutes.POST("", categoryController.CreateCategory)
-			categoryRoutes.DELETE("/:id", categoryController.DeleteCategoryByID)
-		}
-
-		analyticsRoutes := api.Group("/analytics")
-		{
-			analyticsRoutes.GET("", analyticsController.GetAnalytics)
-		}
 	}
 }
