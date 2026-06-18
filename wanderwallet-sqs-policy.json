@@ -1,0 +1,17 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "sqs:SendMessage",
+          "sqs:GetQueueAttributes",
+          "sqs:GetQueueUrl",
+          "sqs:ReceiveMessage",
+          "sqs:DeleteMessage",
+          "sqs:ChangeMessageVisibility"
+        ],
+        "Resource": "arn:aws:sqs:eu-central-1:YOUR_AWS_ACCOUNT_ID:wanderwallet-expense-events"
+      }
+    ]
+  }

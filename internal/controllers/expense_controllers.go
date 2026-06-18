@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"wanderwallet/internal/dto"
+	"wanderwallet/internal/events"
 	"wanderwallet/internal/models"
 	"wanderwallet/internal/services"
 
@@ -18,13 +19,15 @@ type ExpenseController struct {
 	expenseService  *services.ExpenseService
 	categoryService *services.CategoryService
 	travelService   *services.TravelService
+	eventPublisher  events.Publisher
 }
 
-func NewExpenseController(expenseService *services.ExpenseService, categoryService *services.CategoryService, travelService *services.TravelService) *ExpenseController {
+func NewExpenseController(expenseService *services.ExpenseService, categoryService *services.CategoryService, travelService *services.TravelService, eventPublisher events.Publisher) *ExpenseController {
 	return &ExpenseController{
 		expenseService:  expenseService,
 		categoryService: categoryService,
 		travelService:   travelService,
+		eventPublisher:  eventPublisher,
 	}
 }
 
@@ -83,6 +86,18 @@ func (ctrl *ExpenseController) CreateExpense(c *gin.Context) {
 		log.Printf("Failed to create expense for user %d: %v\n", user.ID, err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": http.StatusText(http.StatusInternalServerError)})
 		return
+	}
+
+	if err := ctrl.eventPublisher.PublishExpense(ctx, events.ExpenseCreatedEvent{
+		EventType: "expense_created",
+		ExpenseId: expense.ID,
+		UserID:    user.ID,
+		TravelID:  expense.TravelID,
+		Category:  category.Name,
+		Amount:    expense.Amount,
+		CreatedAt: expense.CreatedAt.Format(time.RFC3339),
+	}); err != nil {
+		log.Printf("Failed to publish expense created event: %v\n", err)
 	}
 
 	c.JSON(http.StatusOK, gin.H{

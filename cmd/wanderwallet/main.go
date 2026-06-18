@@ -16,6 +16,7 @@ import (
 	"wanderwallet/initializers"
 	"wanderwallet/internal/config"
 	"wanderwallet/internal/controllers"
+	"wanderwallet/internal/events"
 	"wanderwallet/internal/middleware"
 	"wanderwallet/internal/repository"
 	"wanderwallet/internal/routes"
@@ -53,6 +54,17 @@ func main() {
 
 	r.Use(middleware.LoggerMiddleware())
 
+	eventPublisher := events.Publisher(&events.NoopPublisher{})
+
+	if queueURL := os.Getenv("EXPENSE_EVENTS_QUEUE_URL"); queueURL != "" {
+		publisher, err := events.NewSQSPublisher(context.Background(), queueURL)
+		if err != nil {
+			log.Printf("SQS publisher disabled: %v", err)
+		} else {
+			eventPublisher = publisher
+		}
+	}
+
 	userRepo := repository.NewUserRepository(initializers.DB)
 	travelRepo := repository.NewTravelRepository(initializers.DB)
 	categoryRepo := repository.NewCategoryRepository(initializers.DB)
@@ -66,7 +78,7 @@ func main() {
 
 	userController := controllers.NewUserController(userService)
 	travelController := controllers.NewTravelController(travelService)
-	expenseController := controllers.NewExpenseController(expenseService, categoryService, travelService)
+	expenseController := controllers.NewExpenseController(expenseService, categoryService, travelService, eventPublisher)
 	categoryController := controllers.NewCategoryController(categoryService, expenseService)
 	analyticsController := controllers.NewAnalyticsController(expenseService, analyticsService)
 
