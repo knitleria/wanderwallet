@@ -56,6 +56,15 @@ func main() {
 
 	eventPublisher := events.Publisher(&events.NoopPublisher{})
 
+	if topicARN := os.Getenv("EXPENSE_EVENTS_TOPIC_ARN"); topicARN != "" {
+		publisher, err := events.NewSNSPublisher(context.Background(), topicARN)
+		if err != nil {
+			log.Printf("SNS publisher disabled: %v", err)
+		} else {
+			eventPublisher = publisher
+		}
+	}
+
 	if queueURL := os.Getenv("EXPENSE_EVENTS_QUEUE_URL"); queueURL != "" {
 		publisher, err := events.NewSQSPublisher(context.Background(), queueURL)
 		if err != nil {
